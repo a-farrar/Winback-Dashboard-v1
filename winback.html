@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winback Analysis Dashboard – FY26 Q2</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root {
+  --blox-black: #101820;
+  --blox-green: #00BD4D;
+  --blox-green-dark: #00943D;
+  --blox-teal: #009BA4;
+  --blox-off-white: #F0EFE9;
+  --blox-steel: #6E7C87;
+  --blox-steel-light: #B0BEC5;
+  --blox-yellow: #FFD100;
+  --blox-bg: #f7f7f5;
+  --blox-card: #ffffff;
+  --blox-text: #1d1d1f;
+  --blox-text-secondary: #6e6e73;
+  --blox-border: rgba(16,24,32,0.08);
+  --blox-shadow: 0 1px 3px rgba(16,24,32,0.06), 0 6px 20px rgba(16,24,32,0.04);
+  --blox-shadow-hover: 0 2px 8px rgba(16,24,32,0.1), 0 12px 32px rgba(16,24,32,0.06);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--blox-bg);
+  color: var(--blox-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: var(--blox-black);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.logo-mark {
+  display: flex; align-items: center; gap: 3px;
+}
+.logo-diamond {
+  width: 8px; height: 8px;
+  background: var(--blox-green);
+  transform: rotate(45deg);
+}
+.logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.logo-text {
+  font-weight: 900; font-size: 18px; color: #fff;
+  letter-spacing: 0.02em;
+}
+.header-title {
+  font-size: 14px; font-weight: 400; color: var(--blox-steel-light);
+  letter-spacing: 0.03em;
+}
+.header-badge {
+  background: rgba(0,189,77,0.15);
+  color: var(--blox-green);
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+/* Container */
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+
+/* Page Title */
+.page-title {
+  margin-bottom: 28px;
+}
+.page-title h1 {
+  font-size: 32px; font-weight: 900; color: var(--blox-black);
+  line-height: 1.15; letter-spacing: -0.01em;
+}
+.page-title p {
+  font-size: 15px; color: var(--blox-text-secondary);
+  margin-top: 6px;
+}
+
+/* Filter Bar */
+.filter-bar {
+  background: var(--blox-card);
+  border: 1px solid var(--blox-border);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: var(--blox-shadow);
+}
+.filter-bar label {
+  font-size: 11px; font-weight: 700; color: var(--blox-text-secondary);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.filter-bar select {
+  font-family: 'Lato', sans-serif;
+  font-size: 13px; font-weight: 400;
+  color: var(--blox-text);
+  background: var(--blox-bg);
+  border: 1px solid var(--blox-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 32px 8px 12px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 160px;
+}
+.filter-bar select:focus {
+  outline: none;
+  border-color: var(--blox-green);
+  box-shadow: 0 0 0 3px rgba(0,189,77,0.15);
+}
+.filter-reset {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: var(--blox-green);
+  background: none; border: none;
+  cursor: pointer; padding: 8px 4px;
+  margin-left: auto;
+  letter-spacing: 0.03em;
+  transition: opacity 0.2s ease;
+}
+.filter-reset:hover { opacity: 0.7; }
+
+/* KPI Cards */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: var(--blox-card);
+  border: 1px solid var(--blox-border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--blox-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--blox-green);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--blox-shadow-hover); }
+.kpi-card:hover::before { opacity: 1; }
+.kpi-label {
+  font-size: 11px; font-weight: 700; color: var(--blox-text-secondary);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 28px; font-weight: 900; color: var(--blox-black);
+  line-height: 1.1;
+}
+.kpi-sub {
+  font-size: 12px; color: var(--blox-text-secondary);
+  margin-top: 6px;
+}
+.kpi-trend-down { color: #d32f2f; font-weight: 700; }
+.kpi-trend-up { color: var(--blox-green-dark); font-weight: 700; }
+
+/* Section Grid */
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.section-grid.full { grid-template-columns: 1fr; }
+.section-grid.thirds { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Card */
+.card {
+  background: var(--blox-card);
+  border: 1px solid var(--blox-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--blox-shadow);
+}
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.card-header .card-title { margin-bottom: 0; }
+.sort-controls { display: flex; gap: 4px; flex-shrink: 0; margin-top: -2px; }
+.sort-btn {
+  font-family: 'Lato', sans-serif;
+  font-size: 10px; font-weight: 700;
+  color: var(--blox-text-secondary);
+  background: var(--blox-bg);
+  border: 1px solid var(--blox-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sort-btn:hover { border-color: var(--blox-steel-light); color: var(--blox-text); }
+.sort-btn.active {
+  background: var(--blox-black);
+  color: #fff;
+  border-color: var(--blox-black);
+}
+.card-title {
+  font-size: 14px; font-weight: 900; color: var(--blox-black);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.card-subtitle {
+  font-size: 12px; color: var(--blox-text-secondary);
+  margin-bottom: 20px;
+}
+.chart-container { width: 100%; height: 320px; }
+.chart-container.tall { height: 380px; }
+
+/* Tables */
+.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead th {
+  text-align: left;
+  font-size: 10px; font-weight: 700;
+  color: var(--blox-text-secondary);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--blox-black);
+  white-space: nowrap;
+}
+.data-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--blox-border);
+  color: var(--blox-text);
+  white-space: nowrap;
+}
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+.data-table tbody tr:hover { background: rgba(0,189,77,0.04); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .highlight { font-weight: 700; color: var(--blox-black); }
+.data-table .total-row td {
+  font-weight: 900; border-top: 2px solid var(--blox-black);
+  border-bottom: none;
+}
+
+/* Tabs */
+.tab-bar {
+  display: flex; gap: 0; margin-bottom: 20px;
+  border-bottom: 1px solid var(--blox-border);
+}
+.tab-btn {
+  font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: var(--blox-text-secondary);
+  background: none; border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.tab-btn:hover { color: var(--blox-text); }
+.tab-btn.active {
+  color: var(--blox-green);
+  border-bottom-color: var(--blox-green);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Scroll wrapper */
+.table-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+}
+.table-scroll::-webkit-scrollbar { width: 6px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--blox-steel-light); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate { animation: fadeUp 0.4s ease forwards; opacity: 0; }
+.animate-d1 { animation-delay: 0.05s; }
+.animate-d2 { animation-delay: 0.1s; }
+.animate-d3 { animation-delay: 0.15s; }
+.animate-d4 { animation-delay: 0.2s; }
+.animate-d5 { animation-delay: 0.25s; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .container { padding: 20px; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .section-grid { grid-template-columns: 1fr; }
+  .section-grid.thirds { grid-template-columns: 1fr; }
+  .header { padding: 0 20px; }
+}
+
+/* Print */
+@media print {
+  @page { margin: 0; size: 8.5in 999in; }
+  body { margin: 0; padding: 0.4in 0.6in; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .container, .dashboard, .shell, main { max-width: 100% !important; width: 100% !important; }
+  .header { position: static; }
+  section, [class*="section"], .header { margin-bottom: 20px !important; }
+  [class*="card"], [class*="Card"] { padding: 18px !important; box-shadow: none !important; border: 1px solid rgba(0,0,0,0.08); }
+  [class*="grid"], [class*="row"] { gap: 10px !important; margin-bottom: 20px !important; }
+  [class*="chart"], [class*="Chart"] { height: 240px !important; }
+  [class*="chart"][class*="tall"], [class*="Chart"][class*="tall"],
+  [class*="chart"][class*="full"], [class*="Chart"][class*="full"] { height: 280px !important; }
+  [class*="scroll"], [style*="max-height"], [style*="overflow"] { max-height: none !important; overflow: visible !important; }
+  [class*="tab-panel"], [class*="tabpanel"] { display: block !important; }
+  [class*="tab-bar"], [class*="tabs"]:not([class*="panel"]) { display: none !important; }
+  [class*="fade"], [class*="animate"], [class*="slide"] { opacity: 1 !important; transform: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  button, [role="button"], .interactive-only, .filter-bar { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">
+      <div class="logo-grid">
+        <div class="logo-diamond"></div>
+        <div class="logo-diamond"></div>
+        <div class="logo-diamond"></div>
+        <div class="logo-diamond"></div>
+      </div>
+    </div>
+    <span class="logo-text">INFOBLOX</span>
+    <span class="header-title">Winback Analysis Dashboard</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="https://infoblox.sharepoint.com/:x:/r/sites/BizStrategy/Shared%20Documents/Data%20Team/Customer%20Information/NewLogo-Expansion-Churn/FY26%27Q2/Winback%20Analysis%204.3.26.xlsx?d=w2d5ec088b6c549819fd74602cceb877f&csf=1&web=1&e=psxNdh" target="_blank" style="font-family:Lato,sans-serif;font-size:12px;font-weight:700;color:#00BD4D;text-decoration:none;padding:4px 12px;border:1px solid rgba(0,189,77,0.3);border-radius:20px;letter-spacing:0.03em;transition:background 0.2s ease,color 0.2s ease;" onmouseover="this.style.background='#00BD4D';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#00BD4D'">Source Data ↗</a>
+    <span class="header-badge">FY26 Q2</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="page-title animate">
+    <h1>Winback Analysis</h1>
+    <p>Customer Churn & Recovery Opportunity · Data as of April 3, 2026</p>
+  </div>
+
+  <!-- Filters removed -->
+  <div style="display:none !important" class="filter-bar animate animate-d1">
+    <label>GEO
+      <select id="filterGeo">
+        <option value="All">All GEOs</option>
+        <option value="AMS">AMS</option>
+        <option value="AMS-US">AMS-US</option>
+        <option value="EMEA">EMEA</option>
+        <option value="APJ">APJ</option>
+      </select>
+    </label>
+    <label>ARR BAND
+      <select id="filterARR">
+        <option value="All">All Bands</option>
+        <option value="$1M+">$1M+</option>
+        <option value="$500K–$1M">$500K–$1M</option>
+        <option value="$250K–$500K">$250K–$500K</option>
+        <option value="$100K–$250K">$100K–$250K</option>
+        <option value="$50K–$100K">$50K–$100K</option>
+        <option value="$25K–$50K">$25K–$50K</option>
+        <option value="<$25K">&lt;$25K</option>
+      </select>
+    </label>
+    <label>SEGMENT
+      <select id="filterSegment">
+        <option value="All">All Segments</option>
+        <option value="Enterprise">Enterprise</option>
+        <option value="Commercial">Commercial</option>
+        <option value="Mid Market">Mid Market</option>
+        <option value="US Public Sector">US Public Sector</option>
+        <option value="New Logo">New Logo</option>
+        <option value="SP/SI">SP/SI</option>
+      </select>
+    </label>
+    <label>EMPLOYEE SIZE
+      <select id="filterEmpSize">
+        <option value="All">All Sizes</option>
+        <option value="Below 2,500">Below 2,500</option>
+        <option value="2,500–5K">2,500–5K</option>
+        <option value="5K–10K">5K–10K</option>
+        <option value="10K–25K">10K–25K</option>
+        <option value="25K–50K">25K–50K</option>
+        <option value="Above 50K">Above 50K</option>
+        <option value="Federal">Federal</option>
+        <option value="SLED">SLED</option>
+      </select>
+    </label>
+
+    <span style="font-size: 11px; color: var(--blox-steel); font-style: italic; margin-left: 8px; align-self: center;">ℹ️ Use one filter at a time for accurate KPI updates</span>
+    <button class="filter-reset" onclick="resetFilters()">Reset Filters</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row animate animate-d2" id="kpiRow">
+    <div class="kpi-card">
+      <div class="kpi-label">Active RCs</div>
+      <div class="kpi-value" id="kpiActiveRCs">5,711</div>
+      <div class="kpi-sub">Generating <strong>$991.6M</strong> ARR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cumulative Churned RCs</div>
+      <div class="kpi-value" id="kpiChurnedRCs">4,614</div>
+      <div class="kpi-sub" id="kpiChurnedSub" style="font-size:11px; line-height:1.5;">Pre-FY19: <strong>2,063</strong> RCs (ARR unknown)<br>FY19–H1'FY26: <strong>2,551</strong> RCs ($64.1M ARR)<br><span style="color:var(--blox-green); font-weight:700;">4,023 are active companies</span></div>
+      <div class="kpi-sub" style="display:none;">Total churned ARR: <strong>$64.1M</strong></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">FY25 Churned ARR</div>
+      <div class="kpi-value kpi-trend-down">$25.3M Total</div>
+      <div class="kpi-sub" id="kpiFY25Sub" style="font-size:11px; line-height:1.5;"><strong>$9.6M Excluding Federal</strong><br><span class="kpi-trend-down">↑ 1.5x</span> vs FY24 ($6.2M)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Winback Account Potential</div>
+      <div class="kpi-value" style="color: var(--blox-green)">$791M</div>
+      <div class="kpi-sub" id="kpiWinbackSub" style="font-size:11px; line-height:1.5;">Pre-FY19: <strong>1,744</strong> RCs · $381.0M AP<br>FY19–H1'FY26: <strong>2,279</strong> RCs · $410.5M AP<br><strong>4,023</strong> active churned companies at <strong>6% AP</strong></div>
+    </div>
+  </div>
+
+  <!-- Row 1: Net Logo Trajectory + Churn Acceleration -->
+  <div class="section-grid animate animate-d3">
+    <div class="card">
+      <div class="card-title">Net Logo Trajectory</div>
+      <div class="card-subtitle">WW active customer base FY19–H1'FY26</div>
+      <div class="chart-container" id="chartNetLogo"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Churn Acceleration</div>
+      <div class="card-subtitle">Annual churned ARR ($M) & RC count</div>
+      <div class="chart-container" id="chartChurnAccel"></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Churn by GEO + Churn Rate by ARR Band -->
+  <div class="section-grid animate animate-d4">
+    <div class="card">
+      <div class="card-title">Churned ARR by GEO</div>
+      <div class="card-subtitle">Annual churned ARR ($M) by region · AMS split: ex-Federal vs Federal</div>
+      <div class="chart-container" id="chartGeoARR"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Churn Rate by ARR Band</div>
+      <div class="card-subtitle">FY23–FY25 average RC churn rate</div>
+      <div class="chart-container" id="chartChurnRate"></div>
+    </div>
+  </div>
+
+  <!-- Row 3: Loss Reasons + Product Adoption -->
+  <div class="section-grid animate animate-d5">
+    <div class="card">
+      <div class="card-title">H1'FY26 Loss Reasons</div>
+      <div class="card-subtitle">Why customers are leaving</div>
+      <div class="chart-container" id="chartLossReasons"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Product Adoption Risk</div>
+      <div class="card-subtitle">Products held: churned vs active</div>
+      <div class="chart-container" id="chartProductAdoption"></div>
+    </div>
+  </div>
+
+  <!-- Row 3b: Carahsoft Winbacks – US Onlys + Products Held at Last Active -->
+  <div class="section-grid animate">
+    <div class="card">
+      <div class="card-title">Carahsoft Winbacks – US Only</div>
+      <div class="card-subtitle">Active operating status · US-billing · No open opportunities · All ARR bands</div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr><th>Last Known ARR Band</th><th class="num"># of RC</th><th class="num">Last Known ARR</th><th class="num">Churned AP$</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="highlight">$1M+</td><td class="num">2</td><td class="num">$3,315K</td><td class="num">$1,856K</td></tr>
+            <tr><td class="highlight">$250K–$500K</td><td class="num">6</td><td class="num">$1,971K</td><td class="num">$9,690K</td></tr>
+            <tr><td class="highlight">$100K–$250K</td><td class="num">25</td><td class="num">$3,568K</td><td class="num">$25,393K</td></tr>
+            <tr><td class="highlight">$50K–$100K</td><td class="num">53</td><td class="num">$3,602K</td><td class="num">$19,274K</td></tr>
+            <tr><td class="highlight">$25K–$50K</td><td class="num">104</td><td class="num">$3,651K</td><td class="num">$43,732K</td></tr>
+            <tr><td class="highlight">$10K–$25K</td><td class="num">172</td><td class="num">$2,816K</td><td class="num">$41,597K</td></tr>
+            <tr><td class="highlight">$5K–$10K</td><td class="num">151</td><td class="num">$1,110K</td><td class="num">$35,991K</td></tr>
+            <tr><td class="highlight">$2K–$5K</td><td class="num">135</td><td class="num">$438K</td><td class="num">$22,812K</td></tr>
+            <tr><td class="highlight">Less than $2K</td><td class="num">60</td><td class="num">$68K</td><td class="num">$12,957K</td></tr>
+            <tr style="font-weight:700; border-top:2px solid var(--blox-black);"><td>Subtotal (Known ARR)</td><td class="num">708</td><td class="num">$20,539K</td><td class="num">$213,301K</td></tr>
+            <tr><td class="highlight" style="color:var(--blox-steel)">Unknown (Pre-FY19)</td><td class="num">712</td><td class="num" style="color:var(--blox-steel)">—</td><td class="num">$185,494K</td></tr>
+            <tr class="total-row"><td>Grand Total (US, Active, No Open Opp)</td><td class="num">1,420</td><td class="num">$20,539K</td><td class="num">$398,795K</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 16px; padding: 14px; background: rgba(0,189,77,0.06); border-radius: 8px; border-left: 3px solid var(--blox-green);">
+        <div style="font-size: 12px; color: var(--blox-text-secondary); line-height: 1.7;">
+          <strong style="color:var(--blox-black);">Carahsoft US-only winback targets.</strong> Filtered by GEO US Breakout = "AMS - US", Active operating status, no open opportunities. <strong>1,420 accounts</strong> totaling <strong>$20.5M last known ARR</strong> and <strong>$398.8M addressable penetration</strong>. 712 accounts (50%) have unknown last ARR from pre-FY18 churn but carry $185.5M in addressable penetration.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Products Held at Last Active</div>
+      <div class="card-subtitle">Top product combinations among churned customers (active winback pool)</div>
+      <div class="chart-container tall" id="chartProductsHeld"></div>
+    </div>
+  </div>
+
+  <!-- Row 4: Churn by RC Segment on Region -->
+  <div class="section-grid animate">
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Churn by Region Segment</div>
+        <div class="card-subtitle" style="margin-bottom:0">Active churned RCs by RC Segment on Region, split by GEO (4,024 total)</div></div>
+        <div class="sort-controls">
+          <button class="sort-btn active" onclick="sortRegionSegment('value', this)">By Count</button>
+          <button class="sort-btn" onclick="sortRegionSegment('alpha', this)">A → Z</button>
+        </div>
+      </div>
+      <div class="chart-container tall" id="chartRegionAll"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Owner Region (at Churn)</div>
+        <div class="card-subtitle" style="margin-bottom:0">Top owner regions by churned RCs · 2018–H1'FY26</div></div>
+        <div class="sort-controls">
+          <button class="sort-btn active" onclick="sortOwnerRegion('value', this)">By Count</button>
+          <button class="sort-btn" onclick="sortOwnerRegion('alpha', this)">A → Z</button>
+          <button class="sort-btn" onclick="sortOwnerRegion('geo', this)">By GEO</button>
+        </div>
+      </div>
+      <div class="chart-container tall" id="chartOwnerRegion"></div>
+    </div>
+  </div>
+
+  <!-- Row 5: Detailed Data Tables -->
+  <div class="section-grid full animate">
+    <div class="card">
+      <div class="card-title">Detailed Breakdown</div>
+      <div class="card-subtitle">Explore churn data across all dimensions</div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(event, 'tabGeo')">By GEO</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabARR')">By ARR Band</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabSegment')">By Segment</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabEmpSize')">By Employee Size</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabTenure')">By Tenure</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabWinback')">Winback Opp</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabOwnerRegion')">Owner Region</button>
+      </div>
+
+      <!-- GEO Table -->
+      <div class="tab-panel active" id="tabGeo">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>GEO</th><th class="num">FY23 ARR</th><th class="num">FY24 ARR</th><th class="num">FY25 ARR</th><th class="num">H1'FY26 ARR</th><th class="num">Total ARR</th><th class="num">% of Total</th><th class="num">FY25 RCs</th><th class="num">H1'26 RCs</th><th class="num">All-Time RCs</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">AMS</td><td class="num">$3.2M</td><td class="num">$3.0M</td><td class="num">$20.3M</td><td class="num">$6.7M</td><td class="num">$41.7M</td><td class="num">65%</td><td class="num">157</td><td class="num">129</td><td class="num">1,995</td></tr>
+              <tr style="background:rgba(0,189,77,0.06);"><td style="padding-left:28px;font-weight:700;color:var(--blox-green-dark);font-size:12px;">↳ AMS - US</td><td class="num">$2.8M</td><td class="num">$2.5M</td><td class="num">$18.1M</td><td class="num">$5.9M</td><td class="num">$36.5M</td><td class="num">57%</td><td class="num">132</td><td class="num">108</td><td class="num">1,680</td></tr>
+              <tr><td class="highlight">EMEA</td><td class="num">$1.4M</td><td class="num">$1.5M</td><td class="num">$3.1M</td><td class="num">$3.5M</td><td class="num">$14.0M</td><td class="num">22%</td><td class="num">86</td><td class="num">83</td><td class="num">1,203</td></tr>
+              <tr><td class="highlight">APJ</td><td class="num">$0.8M</td><td class="num">$1.6M</td><td class="num">$1.8M</td><td class="num">$1.0M</td><td class="num">$8.4M</td><td class="num">13%</td><td class="num">106</td><td class="num">75</td><td class="num">1,406</td></tr>
+              <tr class="total-row"><td>Total</td><td class="num">$5.4M</td><td class="num">$6.2M</td><td class="num">$25.3M</td><td class="num">$11.3M</td><td class="num">$64.1M</td><td class="num">100%</td><td class="num">349</td><td class="num">287</td><td class="num">4,614</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ARR Band Table -->
+      <div class="tab-panel" id="tabARR">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>ARR Band</th><th class="num">Churned ARR</th><th class="num">% of ARR</th><th class="num">Churned RCs</th><th class="num">Avg RC Churn Rate</th><th class="num">Avg ARR Churn Rate</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">$1M+</td><td class="num">$14.9M</td><td class="num">23%</td><td class="num">4</td><td class="num">1%</td><td class="num">1%</td></tr>
+              <tr><td class="highlight">$500K–$1M</td><td class="num">$0.6M</td><td class="num">1%</td><td class="num">1</td><td class="num">0%</td><td class="num">0%</td></tr>
+              <tr><td class="highlight">$250K–$500K</td><td class="num">$3.3M</td><td class="num">5%</td><td class="num">10</td><td class="num">1%</td><td class="num">1%</td></tr>
+              <tr><td class="highlight">$100K–$250K</td><td class="num">$10.1M</td><td class="num">16%</td><td class="num">69</td><td class="num">1%</td><td class="num">2%</td></tr>
+              <tr><td class="highlight">$50K–$100K</td><td class="num">$11.1M</td><td class="num">17%</td><td class="num">160</td><td class="num">2%</td><td class="num">3%</td></tr>
+              <tr><td class="highlight">$25K–$50K</td><td class="num">$10.0M</td><td class="num">16%</td><td class="num">284</td><td class="num">4%</td><td class="num">5%</td></tr>
+              <tr><td class="highlight">$10K–$25K</td><td class="num">$8.4M</td><td class="num">13%</td><td class="num">519</td><td class="num">6%</td><td class="num">7%</td></tr>
+              <tr><td class="highlight">$5K–$10K</td><td class="num">$3.4M</td><td class="num">5%</td><td class="num">467</td><td class="num">12%</td><td class="num">9%</td></tr>
+              <tr><td class="highlight">$2K–$5K</td><td class="num">$1.9M</td><td class="num">3%</td><td class="num">566</td><td class="num">15%</td><td class="num">6%</td></tr>
+              <tr><td class="highlight">&lt;$2K</td><td class="num">$0.5M</td><td class="num">1%</td><td class="num">474</td><td class="num">33%</td><td class="num">22%</td></tr>
+              <tr><td class="highlight" style="color:var(--blox-steel)">Unknown (Pre-FY19)</td><td class="num" style="color:var(--blox-steel)">—</td><td class="num" style="color:var(--blox-steel)">—</td><td class="num">2,063</td><td class="num" style="color:var(--blox-steel)">—</td><td class="num" style="color:var(--blox-steel)">—</td></tr>
+              <tr class="total-row"><td>Total</td><td class="num">$64.1M</td><td class="num">100%</td><td class="num">4,611</td><td class="num">5%</td><td class="num">2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Segment Table -->
+      <div class="tab-panel" id="tabSegment">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Segment</th><th class="num">All-Time RCs</th><th class="num">% of Total</th><th class="num">FY25 RCs</th><th class="num">H1'FY26 RCs</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">Enterprise</td><td class="num">2,565</td><td class="num">56%</td><td class="num">192</td><td class="num">160</td></tr>
+              <tr><td class="highlight">Commercial</td><td class="num">732</td><td class="num">16%</td><td class="num">58</td><td class="num">54</td></tr>
+              <tr><td class="highlight">Mid Market</td><td class="num">512</td><td class="num">11%</td><td class="num">35</td><td class="num">22</td></tr>
+              <tr><td class="highlight">US Public Sector</td><td class="num">478</td><td class="num">10%</td><td class="num">45</td><td class="num">36</td></tr>
+              <tr><td class="highlight">New Logo</td><td class="num">261</td><td class="num">6%</td><td class="num">16</td><td class="num">6</td></tr>
+              <tr><td class="highlight">SP/SI</td><td class="num">64</td><td class="num">1%</td><td class="num">3</td><td class="num">9</td></tr>
+              <tr class="total-row"><td>Total</td><td class="num">4,611</td><td class="num">100%</td><td class="num">349</td><td class="num">287</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Employee Size Table -->
+      <div class="tab-panel" id="tabEmpSize">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Employee Size</th><th class="num">Churned RCs</th><th class="num">% of RCs</th><th class="num">Churned ARR</th><th class="num">% of ARR</th><th class="num">Winback RCs</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">Below 2,500</td><td class="num">2,268</td><td class="num">49%</td><td class="num">$14.4M</td><td class="num">22%</td><td class="num">2,036</td></tr>
+              <tr><td class="highlight">2,500–5K</td><td class="num">493</td><td class="num">11%</td><td class="num">$5.6M</td><td class="num">9%</td><td class="num">450</td></tr>
+              <tr><td class="highlight">5K–10K</td><td class="num">472</td><td class="num">10%</td><td class="num">$6.9M</td><td class="num">11%</td><td class="num">421</td></tr>
+              <tr><td class="highlight">10K–25K</td><td class="num">483</td><td class="num">10%</td><td class="num">$6.9M</td><td class="num">11%</td><td class="num">394</td></tr>
+              <tr><td class="highlight">25K–50K</td><td class="num">223</td><td class="num">5%</td><td class="num">$3.7M</td><td class="num">6%</td><td class="num">150</td></tr>
+              <tr><td class="highlight">Above 50K</td><td class="num">223</td><td class="num">5%</td><td class="num">$4.3M</td><td class="num">7%</td><td class="num">174</td></tr>
+              <tr><td class="highlight">Federal</td><td class="num">109</td><td class="num">2%</td><td class="num">$17.8M</td><td class="num">28%</td><td class="num">93</td></tr>
+              <tr><td class="highlight" style="color:var(--blox-teal)">SLED</td><td class="num">364</td><td class="num">8%</td><td class="num">$4.6M</td><td class="num">7%</td><td class="num">300</td></tr>
+              <tr class="total-row"><td>Total</td><td class="num">4,611</td><td class="num">100%</td><td class="num">$64.1M</td><td class="num">100%</td><td class="num">4,016</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tenure Table -->
+      <div class="tab-panel" id="tabTenure">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Customer Tenure</th><th class="num">Churned RCs</th><th class="num">% of Total</th><th class="num">Cumulative %</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">0–1 Years</td><td class="num">13</td><td class="num">&lt;1%</td><td class="num">&lt;1%</td></tr>
+              <tr><td class="highlight">1–3 Years</td><td class="num">1,144</td><td class="num">25%</td><td class="num">25%</td></tr>
+              <tr><td class="highlight">3–5 Years</td><td class="num">1,135</td><td class="num">25%</td><td class="num">49%</td></tr>
+              <tr><td class="highlight">5–7 Years</td><td class="num">868</td><td class="num">19%</td><td class="num">68%</td></tr>
+              <tr><td class="highlight">7–10 Years</td><td class="num">706</td><td class="num">15%</td><td class="num">84%</td></tr>
+              <tr><td class="highlight">10+ Years</td><td class="num">748</td><td class="num">16%</td><td class="num">100%</td></tr>
+              <tr class="total-row"><td>Total</td><td class="num">4,614</td><td class="num">100%</td><td class="num"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Winback Opportunity Table -->
+      <div class="tab-panel" id="tabWinback">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Status</th><th class="num"># of RCs</th><th class="num">Last Known ARR</th><th class="num">Addressable Penetration</th><th class="num">AP Penetration</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight" style="color:var(--blox-green)">Active (still in business)</td><td class="num">4,016</td><td class="num">$45.5M</td><td class="num">$791.2M</td><td class="num">6%</td></tr>
+              <tr><td class="highlight">Unknown</td><td class="num">347</td><td class="num">$15.5M</td><td class="num">$89.8M</td><td class="num">17%</td></tr>
+              <tr><td class="highlight">Out of Business</td><td class="num">266</td><td class="num">$2.5M</td><td class="num">$37.5M</td><td class="num">7%</td></tr>
+              <tr class="total-row"><td>Total Churned</td><td class="num">4,629</td><td class="num">$63.5M</td><td class="num">$918.5M</td><td class="num">7%</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top: 20px; padding: 16px; background: rgba(0,189,77,0.06); border-radius: 8px; border-left: 3px solid var(--blox-green);">
+            <div style="font-size: 13px; font-weight: 700; color: var(--blox-black); margin-bottom: 6px;">Winback Comparison</div>
+            <div style="font-size: 13px; color: var(--blox-text-secondary); line-height: 1.7;">
+              Active customers: <strong>5,709 RCs</strong> · $991.6M ARR · $2,155.5M AP · <strong style="color:var(--blox-green)">46% penetration</strong><br>
+              Churned (active biz): <strong>4,016 RCs</strong> · $45.5M last ARR · $791.2M AP · <strong style="color:#d32f2f">6% penetration</strong><br>
+              <strong>Gap = 40 points of penetration = the value of retention & re-engagement</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Owner Region Table -->
+      <div class="tab-panel" id="tabOwnerRegion">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>GEO</th><th>Owner Region</th><th class="num">Churned RCs</th><th class="num">Above 50K</th><th class="num">25K–50K</th><th class="num">10K–25K</th><th class="num">5K–10K</th><th class="num">Below 5K</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="highlight">EMEA</td><td>EMEA COMMERCIAL</td><td class="num">285</td><td class="num">6</td><td class="num">11</td><td class="num">20</td><td class="num">39</td><td class="num">209</td></tr>
+              <tr><td class="highlight">APJ</td><td>JAPAN</td><td class="num">275</td><td class="num">10</td><td class="num">11</td><td class="num">41</td><td class="num">31</td><td class="num">182</td></tr>
+              <tr><td class="highlight">AMS</td><td>MID MARKET</td><td class="num">201</td><td class="num">3</td><td class="num">3</td><td class="num">6</td><td class="num">7</td><td class="num">182</td></tr>
+              <tr><td class="highlight">APJ</td><td>KOREA</td><td class="num">172</td><td class="num">2</td><td class="num">5</td><td class="num">7</td><td class="num">13</td><td class="num">145</td></tr>
+              <tr><td class="highlight">APJ</td><td>GC</td><td class="num">144</td><td class="num">27</td><td class="num">7</td><td class="num">19</td><td class="num">19</td><td class="num">72</td></tr>
+              <tr><td class="highlight">EMEA</td><td>METAF</td><td class="num">111</td><td class="num">3</td><td class="num">4</td><td class="num">9</td><td class="num">16</td><td class="num">79</td></tr>
+              <tr><td class="highlight">APJ</td><td>SEA</td><td class="num">108</td><td class="num">4</td><td class="num">3</td><td class="num">15</td><td class="num">17</td><td class="num">69</td></tr>
+              <tr><td class="highlight">AMS</td><td>LATIN AMERICA</td><td class="num">95</td><td class="num">7</td><td class="num">2</td><td class="num">15</td><td class="num">11</td><td class="num">60</td></tr>
+              <tr><td class="highlight">AMS</td><td>SLED WEST</td><td class="num">76</td><td class="num">1</td><td class="num">2</td><td class="num">7</td><td class="num">9</td><td class="num">57</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS NL WEST</td><td class="num">71</td><td class="num">3</td><td class="num">10</td><td class="num">22</td><td class="num">11</td><td class="num">25</td></tr>
+              <tr><td class="highlight">AMS</td><td>SLED EAST</td><td class="num">69</td><td class="num">5</td><td class="num">3</td><td class="num">5</td><td class="num">4</td><td class="num">52</td></tr>
+              <tr><td class="highlight">EMEA</td><td>EMEA NEW LOGO</td><td class="num">64</td><td class="num">9</td><td class="num">10</td><td class="num">11</td><td class="num">17</td><td class="num">17</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS NL EAST</td><td class="num">62</td><td class="num">11</td><td class="num">7</td><td class="num">21</td><td class="num">5</td><td class="num">18</td></tr>
+              <tr><td class="highlight">EMEA</td><td>CEUR</td><td class="num">62</td><td class="num">7</td><td class="num">4</td><td class="num">5</td><td class="num">6</td><td class="num">40</td></tr>
+              <tr><td class="highlight">AMS</td><td>FEDERAL</td><td class="num">60</td><td class="num">3</td><td class="num">4</td><td class="num">7</td><td class="num">2</td><td class="num">44</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS COM WEST</td><td class="num">51</td><td class="num">0</td><td class="num">1</td><td class="num">7</td><td class="num">4</td><td class="num">39</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS CHANNEL</td><td class="num">48</td><td class="num">0</td><td class="num">2</td><td class="num">4</td><td class="num">1</td><td class="num">41</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS COM EAST</td><td class="num">48</td><td class="num">2</td><td class="num">0</td><td class="num">1</td><td class="num">4</td><td class="num">41</td></tr>
+              <tr><td class="highlight">AMS</td><td>AMS COM CENTRAL</td><td class="num">42</td><td class="num">0</td><td class="num">1</td><td class="num">6</td><td class="num">7</td><td class="num">28</td></tr>
+              <tr><td class="highlight">APJ</td><td>SAARC</td><td class="num">37</td><td class="num">7</td><td class="num">2</td><td class="num">5</td><td class="num">5</td><td class="num">18</td></tr>
+              <tr><td class="highlight">APJ</td><td>ANZ</td><td class="num">31</td><td class="num">2</td><td class="num">1</td><td class="num">7</td><td class="num">3</td><td class="num">18</td></tr>
+              <tr><td class="highlight">EMEA</td><td>EMEA SP SI</td><td class="num">31</td><td class="num">1</td><td class="num">1</td><td class="num">4</td><td class="num">8</td><td class="num">17</td></tr>
+              <tr class="total-row" style="border-top:2px solid var(--blox-steel-light);font-weight:700;background:#f9f9f7"><td></td><td>Subtotal (FY18–H1'26)</td><td class="num">2,235</td><td class="num">115</td><td class="num">106</td><td class="num">265</td><td class="num">253</td><td class="num">1,450</td></tr><tr style="background:#fff8e1;font-style:italic;color:var(--blox-steel)"><td></td><td>Pre-FY19 Churn (no region data)</td><td class="num" style="color:var(--blox-text);font-weight:700">1,788</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr><tr class="total-row"><td></td><td>Grand Total (Active Churned)</td><td class="num">4,023</td><td class="num">174</td><td class="num">150</td><td class="num">394</td><td class="num">421</td><td class="num">2,884</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Takeaways -->
+  <div class="section-grid full animate" style="margin-top: 4px;">
+    <div class="card" style="border-left: 4px solid var(--blox-green);">
+      <div class="card-title">Strategic Recommendations</div>
+      <div class="card-subtitle" style="margin-bottom: 16px;">Key actions for the CRO</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 13px; line-height: 1.7;">
+        <div>
+          <div style="font-weight: 900; color: var(--blox-black); margin-bottom: 4px;">1. Stem the Bleeding</div>
+          <div style="color: var(--blox-text-secondary);">Net logos down 291 since FY24. FY25 churned ARR spiked 4x to $25.3M. Focus retention playbooks on accounts 1–5 years into tenure.</div>
+        </div>
+        <div>
+          <div style="font-weight: 900; color: var(--blox-black); margin-bottom: 4px;">2. Protect the Long Tail</div>
+          <div style="color: var(--blox-text-secondary);">Accounts &lt;$10K churn at 12–33%. Move sub-$25K accounts up-band through cross-sell or accept managed attrition with automated engagement.</div>
+        </div>
+        <div>
+          <div style="font-weight: 900; color: var(--blox-black); margin-bottom: 4px;">3. Drive Multi-Product & SaaS</div>
+          <div style="color: var(--blox-text-secondary);">80% of churned held only 1 product vs 56% of active. Non-SaaS customers churn at far higher rates. SaaS conversion is a retention lever.</div>
+        </div>
+        <div>
+          <div style="font-weight: 900; color: var(--blox-black); margin-bottom: 4px;">4. Winback Account Potential</div>
+          <div style="color: var(--blox-text-secondary);">4,016 active churned companies at 6% AP vs 46% for current customers. Prioritize recently churned mid-to-large accounts ($25K+ last ARR).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== Color palette =====
+const BG = '#f7f7f5';
+const GREEN = '#00BD4D';
+const GREEN_DARK = '#00943D';
+const BLACK = '#101820';
+const TEAL = '#009BA4';
+const STEEL = '#6E7C87';
+const STEEL_LT = '#B0BEC5';
+const YELLOW = '#FFD100';
+const RED = '#d32f2f';
+const ORANGE = '#E67E22';
+
+const chartFont = 'Lato, -apple-system, sans-serif';
+const tooltipStyle = {
+  backgroundColor: 'rgba(16,24,32,0.92)',
+  borderColor: 'transparent',
+  textStyle: { fontFamily: chartFont, fontSize: 12, color: '#fff' }
+};
+const axisLabelStyle = { fontFamily: chartFont, fontSize: 11, color: STEEL };
+const axisLineStyle = { lineStyle: { color: 'rgba(16,24,32,0.08)' } };
+
+// ===== 1. Net Logo Trajectory =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartNetLogo'), null, { renderer: 'svg' });
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis' }, tooltipStyle),
+    legend: { data: ['Cumulative New', 'Cumulative Churn', 'Net Logos'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 60, right: 20, top: 20, bottom: 50 },
+    xAxis: { type: 'category', data: ['FY19','FY20','FY21','FY22','FY23','FY24','FY25','H1\'26'], axisLabel: axisLabelStyle, axisLine: axisLineStyle, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLabel: Object.assign({}, axisLabelStyle, { formatter: function(v) { return (v/1000).toFixed(0) + 'K'; } }), splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    series: [
+      { name: 'Cumulative New', type: 'line', data: [8183,8513,8855,9256,9615,9975,10166,10320], smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: STEEL_LT }, itemStyle: { color: STEEL_LT } },
+      { name: 'Cumulative Churn', type: 'line', data: [2399,2716,3282,3489,3714,3978,4327,4614], smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: RED }, itemStyle: { color: RED } },
+      { name: 'Net Logos', type: 'line', data: [5784,5797,5573,5767,5901,5997,5839,5706], smooth: true, symbol: 'circle', symbolSize: 7, lineStyle: { width: 3, color: GREEN }, itemStyle: { color: GREEN },
+        markPoint: { data: [{ type: 'max', name: 'Peak' }], symbol: 'circle', symbolSize: 10, itemStyle: { color: GREEN }, label: { fontSize: 10, fontFamily: chartFont, fontWeight: 700 } }
+      }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 2. Churn Acceleration =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartChurnAccel'), null, { renderer: 'svg' });
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis' }, tooltipStyle),
+    legend: { data: ['Churned ARR ($M)', 'ex-Federal ($M)', 'Churned RCs'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 55, right: 55, top: 20, bottom: 50 },
+    xAxis: { type: 'category', data: ['FY19','FY20','FY21','FY22','FY23','FY24','FY25','H1\'26'], axisLabel: axisLabelStyle, axisLine: axisLineStyle, axisTick: { show: false } },
+    yAxis: [
+      { type: 'value', name: 'ARR ($M)', nameTextStyle: { fontFamily: chartFont, fontSize: 10, color: STEEL }, axisLabel: Object.assign({}, axisLabelStyle, { formatter: '${value}M' }), splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+      { type: 'value', name: 'RCs', nameTextStyle: { fontFamily: chartFont, fontSize: 10, color: STEEL }, axisLabel: axisLabelStyle, splitLine: { show: false } }
+    ],
+    series: [
+      { name: 'Churned ARR ($M)', type: 'bar', data: [2.9,3.3,6.8,2.9,5.4,6.2,25.3,11.3], barWidth: '38%', itemStyle: { color: function(p) { return p.dataIndex >= 6 ? RED : STEEL; }, borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', fontFamily: chartFont, fontSize: 10, fontWeight: 700, color: BLACK, formatter: '${c}M' }
+      },
+      { name: 'ex-Federal ($M)', type: 'line', data: [2.8,3.2,6.6,2.8,5.3,6.0,9.6,10.1], smooth: true, symbol: 'diamond', symbolSize: 7, lineStyle: { width: 2.5, color: YELLOW }, itemStyle: { color: YELLOW },
+        label: { show: true, position: 'bottom', fontFamily: chartFont, fontSize: 9, fontWeight: 700, color: '#b8960a', formatter: function(p) { return p.dataIndex >= 6 ? '$' + p.value + 'M' : ''; } }
+      },
+      { name: 'Churned RCs', type: 'line', yAxisIndex: 1, data: [481,323,574,209,226,264,349,287], smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: TEAL, type: 'dashed' }, itemStyle: { color: TEAL } }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 3. Churned ARR by GEO =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartGeoARR'), null, { renderer: 'svg' });
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis' }, tooltipStyle),
+    legend: { data: ['AMS (ex-Fed)', 'Federal', 'EMEA', 'APJ'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 55, right: 20, top: 20, bottom: 50 },
+    xAxis: { type: 'category', data: ['FY19','FY20','FY21','FY22','FY23','FY24','FY25','H1\'26'], axisLabel: axisLabelStyle, axisLine: axisLineStyle, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLabel: Object.assign({}, axisLabelStyle, { formatter: '${value}M' }), splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    series: [
+      { name: 'AMS (ex-Fed)', type: 'bar', stack: 'geo', data: [1.2,1.7,4.3,1.3,3.1,2.8,4.6,5.5], barWidth: '45%', itemStyle: { color: GREEN } },
+      { name: 'Federal', type: 'bar', stack: 'geo', data: [0.1,0.1,0.2,0.1,0.1,0.2,15.7,1.2], itemStyle: { color: YELLOW } },
+      { name: 'EMEA', type: 'bar', stack: 'geo', data: [0.7,0.8,1.4,0.8,1.4,1.5,3.1,3.5], itemStyle: { color: TEAL } },
+      { name: 'APJ', type: 'bar', stack: 'geo', data: [0.9,0.7,0.9,0.7,0.8,1.6,1.8,1.0], itemStyle: { color: STEEL, borderRadius: [4,4,0,0] } }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 4. Churn Rate by ARR Band =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartChurnRate'), null, { renderer: 'svg' });
+  var bands = ['<$2K','$2K–$5K','$5K–$10K','$10K–$25K','$25K–$50K','$50K–$100K','$100K–$250K','$250K–$500K','$500K–$1M','$1M+'];
+  var rates = [33, 15, 12, 6, 4, 2, 1, 1, 0, 1];
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis', formatter: function(p) { return p[0].name + '<br/>RC Churn Rate: <b>' + p[0].value + '%</b>'; } }, tooltipStyle),
+    grid: { left: 100, right: 30, top: 10, bottom: 30 },
+    xAxis: { type: 'value', axisLabel: Object.assign({}, axisLabelStyle, { formatter: '{value}%' }), splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } }, max: 38 },
+    yAxis: { type: 'category', data: bands, axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 11 }), axisLine: axisLineStyle, axisTick: { show: false } },
+    series: [{
+      type: 'bar', data: rates.map(function(v) {
+        return { value: v, itemStyle: { color: v >= 10 ? RED : v >= 4 ? ORANGE : GREEN, borderRadius: [0,4,4,0] } };
+      }),
+      barWidth: '55%',
+      label: { show: true, position: 'right', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: BLACK, formatter: '{c}%' }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 5. Loss Reasons =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartLossReasons'), null, { renderer: 'svg' });
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'item', formatter: '{b}: ${c}K ({d}%)' }, tooltipStyle),
+    series: [{
+      type: 'pie', radius: ['45%', '72%'], center: ['50%', '50%'],
+      avoidLabelOverlap: true,
+      itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+      label: { fontFamily: chartFont, fontSize: 11, color: BLACK, formatter: '{b}\n{d}%' },
+      labelLine: { length: 15, length2: 10 },
+      data: [
+        { value: 2493, name: 'Decommissioned\nAssets', itemStyle: { color: GREEN } },
+        { value: 2391, name: 'Lost to\nCompetitor', itemStyle: { color: RED } },
+        { value: 795, name: 'Acquired /\nBankrupt', itemStyle: { color: TEAL } },
+        { value: 219, name: 'Unknown', itemStyle: { color: STEEL } },
+        { value: 28, name: 'Other', itemStyle: { color: STEEL_LT } }
+      ]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 6. Product Adoption =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartProductAdoption'), null, { renderer: 'svg' });
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis' }, tooltipStyle),
+    legend: { data: ['1 Product', '2 Products', '3+ Products'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 130, right: 30, top: 20, bottom: 50 },
+    yAxis: { type: 'category', data: ['Active (Q2\'26)', 'Churned (FY18–25)'], axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 12, fontWeight: 700, width: 120, overflow: 'truncate' }), axisLine: axisLineStyle, axisTick: { show: false } },
+    xAxis: { type: 'value', axisLabel: Object.assign({}, axisLabelStyle, { formatter: '{value}%' }), max: 100, splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    series: [
+      { name: '1 Product', type: 'bar', stack: 'prod', data: [56, 80], barWidth: '45%', itemStyle: { color: RED }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: '{c}%' } },
+      { name: '2 Products', type: 'bar', stack: 'prod', data: [29, 18], itemStyle: { color: TEAL }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: '{c}%' } },
+      { name: '3+ Products', type: 'bar', stack: 'prod', data: [15, 4], itemStyle: { color: GREEN, borderRadius: [0,4,4,0] }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: function(p) { return p.value > 5 ? p.value + '%' : ''; } } }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== Products Held at Last Active =====
+(function() {
+  var el = document.getElementById('chartProductsHeld');
+  if (!el) return;
+  var chart = echarts.init(el, null, { renderer: 'svg' });
+  var products = [
+    'Other Security, Core DDI', 'DDI+ NI, DDI+ MS, Core DDI',
+    'DDI+ NI, Core DDI', 'B1DDI', 'DDI+ MS',
+    'Other Sec + DDI+ TR + Core DDI', 'DDI+ TR, Core DDI',
+    'Core DDI + Other Security', 'Other Sec, Core DDI',
+    'TD', 'DDI+ MS + Core DDI', 'NetMRI', 'Core DDI (only)'
+  ];
+  var counts = [45, 32, 33, 31, 31, 37, 43, 45, 58, 66, 67, 79, 1328];
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis', formatter: function(p) { return '<b>' + p[0].name + '</b><br/>Churned Customers: <b>' + p[0].value.toLocaleString() + '</b>'; } }, tooltipStyle),
+    grid: { left: 190, right: 65, top: 5, bottom: 5 },
+    xAxis: { type: 'value', axisLabel: axisLabelStyle, splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    yAxis: { type: 'category', data: products, axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 9.5, width: 175, overflow: 'truncate' }), axisLine: axisLineStyle, axisTick: { show: false } },
+    series: [{
+      type: 'bar', data: counts.map(function(v) {
+        var c = v >= 500 ? RED : v >= 50 ? TEAL : STEEL;
+        return { value: v, itemStyle: { color: c, borderRadius: [0,3,3,0] } };
+      }),
+      barWidth: '55%',
+      label: { show: true, position: 'right', fontFamily: chartFont, fontSize: 10, fontWeight: 700, color: BLACK }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 7. Churn by Region Segment (All-Time) =====
+(function() {
+  var chart = echarts.init(document.getElementById('chartRegionAll'), null, { renderer: 'svg' });
+  var segments = ['SP/SI', 'New Logo', 'US Public Sector', 'Mid Market', 'Commercial', 'Enterprise'];
+  var ams  = [3, 136, 452, 482, 271, 410];
+  var emea = [54, 87, 0, 1, 390, 489];
+  var apj  = [0, 0, 0, 0, 0, 1249];
+  var pcts = ['1%', '6%', '11%', '12%', '16%', '53%'];
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis', formatter: function(params) {
+      var total = 0; params.forEach(function(p) { total += p.value; });
+      var s = '<b>' + params[0].name + '</b> — ' + total.toLocaleString() + ' total (' + pcts[params[0].dataIndex] + ')<br/>';
+      params.forEach(function(p) { if(p.value > 0) s += '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+p.color+';margin-right:6px"></span>' + p.seriesName + ': ' + p.value.toLocaleString() + '<br/>'; });
+      return s;
+    }}, tooltipStyle),
+    legend: { data: ['AMS', 'EMEA', 'APJ'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 130, right: 70, top: 10, bottom: 45 },
+    xAxis: { type: 'value', axisLabel: axisLabelStyle, splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    yAxis: { type: 'category', data: segments, axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 12, fontWeight: 700 }), axisLine: axisLineStyle, axisTick: { show: false } },
+    series: [
+      { name: 'AMS', type: 'bar', stack: 'seg', data: ams, barWidth: '55%', itemStyle: { color: GREEN } },
+      { name: 'EMEA', type: 'bar', stack: 'seg', data: emea, itemStyle: { color: TEAL } },
+      { name: 'APJ', type: 'bar', stack: 'seg', data: apj, itemStyle: { color: ORANGE, borderRadius: [0,4,4,0] },
+        label: { show: true, position: 'right', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: BLACK, formatter: function(p) { var totals = [57,223,452,483,661,2148]; return totals[p.dataIndex].toLocaleString(); } }
+      }
+    ]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== 8. Owner Region at Churn (2018–H1'FY26) =====
+(function() {
+  var el = document.getElementById('chartOwnerRegion');
+  if (!el) return;
+  var chart = echarts.init(el, null, { renderer: 'svg' });
+  var regions = ['ANZ','EMEA SP SI','SAARC','AMS CHANNEL','AMS COM CENTRAL','AMS COM EAST','AMS COM WEST','FEDERAL','AMS NL EAST','EMEA NEW LOGO','SLED EAST','AMS NL WEST','SLED WEST','LATIN AMERICA','SEA','METAF','GC','KOREA','MID MARKET','JAPAN','EMEA COM'];
+  var values =  [31,31,37,48,42,48,51,60,62,64,69,71,76,95,108,111,144,172,201,275,285];
+  var geos =    ['APJ','EMEA','APJ','AMS','AMS','AMS','AMS','AMS','AMS','EMEA','AMS','AMS','AMS','AMS','APJ','EMEA','APJ','APJ','AMS','APJ','EMEA'];
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis', formatter: function(p) { return '<b>' + p[0].name + '</b> (' + geos[p[0].dataIndex] + ')<br/>Churned RCs: <b>' + p[0].value + '</b>'; } }, tooltipStyle),
+    grid: { left: 120, right: 55, top: 5, bottom: 5 },
+    xAxis: { type: 'value', axisLabel: axisLabelStyle, splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    yAxis: { type: 'category', data: regions, axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 9.5 }), axisLine: axisLineStyle, axisTick: { show: false } },
+    series: [{
+      type: 'bar', data: values.map(function(v, i) {
+        var g = geos[i]; var c = g === 'AMS' ? GREEN : g === 'EMEA' ? TEAL : ORANGE;
+        if (v < 50) c = STEEL_LT;
+        return { value: v, itemStyle: { color: c, borderRadius: [0,3,3,0] } };
+      }),
+      barWidth: '58%',
+      label: { show: true, position: 'right', fontFamily: chartFont, fontSize: 9, fontWeight: 700, color: BLACK }
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ===== Sort Functions =====
+function activateSortBtn(btn) {
+  btn.parentElement.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// -- Region Segment sort --
+var regionSegData = {
+  segments: ['SP/SI', 'New Logo', 'US Public Sector', 'Mid Market', 'Commercial', 'Enterprise'],
+  ams:  [3, 136, 452, 482, 271, 410],
+  emea: [54, 87, 0, 1, 390, 489],
+  apj:  [0, 0, 0, 0, 0, 1249],
+  totals: [57, 223, 452, 483, 661, 2148],
+  pcts: ['1%', '6%', '11%', '12%', '16%', '53%']
+};
+
+function sortRegionSegment(mode, btn) {
+  activateSortBtn(btn);
+  var d = regionSegData;
+  var indices = d.segments.map(function(_, i) { return i; });
+  if (mode === 'value') {
+    indices.sort(function(a, b) { return d.totals[a] - d.totals[b]; });
+  } else {
+    indices.sort(function(a, b) { return d.segments[a].localeCompare(d.segments[b]); });
+  }
+  var s = [], a = [], e = [], p = [], t = [], pc = [];
+  indices.forEach(function(i) {
+    s.push(d.segments[i]); a.push(d.ams[i]); e.push(d.emea[i]);
+    p.push(d.apj[i]); t.push(d.totals[i]); pc.push(d.pcts[i]);
+  });
+  var chart = echarts.getInstanceByDom(document.getElementById('chartRegionAll'));
+  chart.setOption({
+    yAxis: { data: s },
+    series: [
+      { data: a },
+      { data: e },
+      { data: p, label: { formatter: function(par) { return t[par.dataIndex].toLocaleString(); } } }
+    ]
+  });
+}
+
+// -- Owner Region sort --
+var ownerRegData = {
+  regions: ['ANZ','EMEA SP SI','SAARC','AMS CHANNEL','AMS COM CENTRAL','AMS COM EAST','AMS COM WEST','FEDERAL','AMS NL EAST','EMEA NEW LOGO','SLED EAST','AMS NL WEST','SLED WEST','LATIN AMERICA','SEA','METAF','GC','KOREA','MID MARKET','JAPAN','EMEA COM'],
+  values:  [31,31,37,48,42,48,51,60,62,64,69,71,76,95,108,111,144,172,201,275,285],
+  geos:    ['APJ','EMEA','APJ','AMS','AMS','AMS','AMS','AMS','AMS','EMEA','AMS','AMS','AMS','AMS','APJ','EMEA','APJ','APJ','AMS','APJ','EMEA']
+};
+
+function sortOwnerRegion(mode, btn) {
+  activateSortBtn(btn);
+  var d = ownerRegData;
+  var indices = d.regions.map(function(_, i) { return i; });
+  if (mode === 'value') {
+    indices.sort(function(a, b) { return d.values[a] - d.values[b]; });
+  } else if (mode === 'alpha') {
+    indices.sort(function(a, b) { return d.regions[a].localeCompare(d.regions[b]); });
+  } else if (mode === 'geo') {
+    var geoOrder = { 'AMS': 0, 'APJ': 1, 'EMEA': 2 };
+    indices.sort(function(a, b) {
+      var ga = geoOrder[d.geos[a]] || 9, gb = geoOrder[d.geos[b]] || 9;
+      if (ga !== gb) return ga - gb;
+      return d.values[b] - d.values[a];
+    });
+  }
+  var r = [], v = [], g = [];
+  indices.forEach(function(i) { r.push(d.regions[i]); v.push(d.values[i]); g.push(d.geos[i]); });
+  var chart = echarts.getInstanceByDom(document.getElementById('chartOwnerRegion'));
+  chart.setOption({
+    tooltip: Object.assign({ trigger: 'axis', formatter: function(p) { return '<b>' + p[0].name + '</b> (' + g[p[0].dataIndex] + ')<br/>Churned RCs: <b>' + p[0].value + '</b>'; } }, tooltipStyle),
+    yAxis: { data: r },
+    series: [{ data: v.map(function(val, i) {
+      var geo = g[i]; var c = geo === 'AMS' ? GREEN : geo === 'EMEA' ? TEAL : ORANGE;
+      if (val < 50) c = STEEL_LT;
+      return { value: val, itemStyle: { color: c, borderRadius: [0,3,3,0] } };
+    }) }]
+  });
+}
+
+// ===== Products Held Chart - GEO Filterable =====
+var productsChart = echarts.init(document.getElementById('chartProductAdoption'), null, { renderer: 'svg' });
+var productsGeoData = {
+  'All': { labels: ['Active (Q2\'26)', 'Churned (FY18–25)'], one: [56, 80], two: [29, 18], three: [15, 4] },
+  'AMS': { labels: ['Active (Q2\'26)', 'Churned (FY18–25)'], one: [54, 78], two: [30, 18], three: [16, 4] },
+  'AMS-US': { labels: ['Active (Q2\'26)', 'Churned (FY18–25)'], one: [52, 76], two: [31, 19], three: [17, 5] },
+  'EMEA': { labels: ['Active (Q2\'26)', 'Churned (FY18–25)'], one: [58, 83], two: [28, 14], three: [14, 3] },
+  'APJ': { labels: ['Active (Q2\'26)', 'Churned (FY18–25)'], one: [60, 82], two: [27, 15], three: [13, 3] }
+};
+
+function drawProductsChart(geo) {
+  var d = productsGeoData[geo] || productsGeoData['All'];
+  productsChart.setOption({
+    tooltip: Object.assign({ trigger: 'axis' }, tooltipStyle),
+    legend: { data: ['1 Product', '2 Products', '3+ Products'], bottom: 0, textStyle: { fontFamily: chartFont, fontSize: 11, color: STEEL }, itemWidth: 14, itemHeight: 3 },
+    grid: { left: 130, right: 30, top: 20, bottom: 50 },
+    yAxis: { type: 'category', data: d.labels, axisLabel: Object.assign({}, axisLabelStyle, { fontSize: 12, fontWeight: 700, width: 120, overflow: 'truncate' }), axisLine: axisLineStyle, axisTick: { show: false } },
+    xAxis: { type: 'value', axisLabel: Object.assign({}, axisLabelStyle, { formatter: '{value}%' }), max: 100, splitLine: { lineStyle: { color: 'rgba(16,24,32,0.05)' } } },
+    series: [
+      { name: '1 Product', type: 'bar', stack: 'prod', data: d.one, barWidth: '45%', itemStyle: { color: RED }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: '{c}%' } },
+      { name: '2 Products', type: 'bar', stack: 'prod', data: d.two, itemStyle: { color: TEAL }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: '{c}%' } },
+      { name: '3+ Products', type: 'bar', stack: 'prod', data: d.three, itemStyle: { color: GREEN, borderRadius: [0,4,4,0] }, label: { show: true, position: 'inside', fontFamily: chartFont, fontSize: 11, fontWeight: 700, color: '#fff', formatter: function(p) { return p.value > 5 ? p.value + '%' : ''; } } }
+    ]
+  }, true);
+}
+drawProductsChart('All');
+window.addEventListener('resize', function() { productsChart.resize(); });
+
+// ===== Tab Switching =====
+function switchTab(e, id) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Filter Logic =====
+var filterState = { geo: 'All', arr: 'All', segment: 'All', empSize: 'All' };
+
+// Aggregated data keyed by filter values
+var geoData = {
+  'All': { activeRCs: '5,711', arr: '$991.6M', churnedRCs: '4,614', churnedARR: '$64.1M', winbackRCs: '4,016', winbackAP: '$791M' },
+  'AMS': { activeRCs: '~3,100', arr: '$580M', churnedRCs: '1,995', churnedARR: '$41.7M', winbackRCs: '~1,502', winbackAP: '$460M' },
+  'AMS-US': { activeRCs: '~2,400', arr: '$450M', churnedRCs: '~1,502', churnedARR: '$37.0M', winbackRCs: '1,502', winbackAP: '$518M' },
+  'EMEA': { activeRCs: '~1,400', arr: '$245M', churnedRCs: '1,203', churnedARR: '$14.0M', winbackRCs: '~1,050', winbackAP: '$200M' },
+  'APJ': { activeRCs: '~1,200', arr: '$167M', churnedRCs: '1,406', churnedARR: '$8.4M', winbackRCs: '~1,260', winbackAP: '$131M' }
+};
+
+function updateKPIs() {
+  var geo = document.getElementById('filterGeo').value;
+  var d = geoData[geo] || geoData['All'];
+  document.getElementById('kpiActiveRCs').textContent = d.activeRCs;
+  document.querySelector('#kpiRow .kpi-card:nth-child(1) .kpi-sub').innerHTML = 'Generating <strong>' + d.arr + '</strong> ARR';
+  document.getElementById('kpiChurnedRCs').textContent = d.churnedRCs;
+  document.querySelector('#kpiRow .kpi-card:nth-child(2) .kpi-sub').innerHTML = 'Total churned ARR: <strong>' + d.churnedARR + '</strong>';
+}
+
+// Data for all filter dimensions
+var arrData = {
+  'All': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '4,614', churnedARR: '$64.1M', winbackRCs: '4,016', winbackAP: '$791M' },
+  '$1M+': { activeRCs: '183', activeARR: '$388.6M', churnedRCs: '4', churnedARR: '$14.9M', winbackRCs: '2', winbackAP: '$143M' },
+  '$500K–$1M': { activeRCs: '233', activeARR: '$165.9M', churnedRCs: '1', churnedARR: '$0.6M', winbackRCs: '1', winbackAP: '$27M' },
+  '$250K–$500K': { activeRCs: '440', activeARR: '$152.2M', churnedRCs: '10', churnedARR: '$3.3M', winbackRCs: '8', winbackAP: '$56M' },
+  '$100K–$250K': { activeRCs: '966', activeARR: '$149.3M', churnedRCs: '69', churnedARR: '$10.1M', winbackRCs: '55', winbackAP: '$138M' },
+  '$50K–$100K': { activeRCs: '1,059', activeARR: '$72.9M', churnedRCs: '160', churnedARR: '$11.1M', winbackRCs: '133', winbackAP: '$100M' },
+  '$25K–$50K': { activeRCs: '1,083', activeARR: '$37.8M', churnedRCs: '284', churnedARR: '$10.0M', winbackRCs: '253', winbackAP: '$89M' },
+  '<$25K': { activeRCs: '1,747', activeARR: '$24.9M', churnedRCs: '2,026', churnedARR: '$14.2M', winbackRCs: '1,501', winbackAP: '$238M' }
+};
+var segmentData = {
+  'All': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '4,614', churnedARR: '$64.1M', winbackRCs: '4,016', winbackAP: '$791M' },
+  'Enterprise': { activeRCs: '~3,200', activeARR: '$620M', churnedRCs: '2,565', churnedARR: '$28.5M', winbackRCs: '2,148', winbackAP: '$420M' },
+  'Commercial': { activeRCs: '~850', activeARR: '$125M', churnedRCs: '732', churnedARR: '$10.2M', winbackRCs: '661', winbackAP: '$130M' },
+  'Mid Market': { activeRCs: '~620', activeARR: '$78M', churnedRCs: '512', churnedARR: '$7.8M', winbackRCs: '483', winbackAP: '$95M' },
+  'US Public Sector': { activeRCs: '~550', activeARR: '$95M', churnedRCs: '478', churnedARR: '$12.1M', winbackRCs: '452', winbackAP: '$105M' },
+  'New Logo': { activeRCs: '~400', activeARR: '$55M', churnedRCs: '261', churnedARR: '$3.2M', winbackRCs: '223', winbackAP: '$28M' },
+  'SP/SI': { activeRCs: '~90', activeARR: '$19M', churnedRCs: '64', churnedARR: '$2.3M', winbackRCs: '57', winbackAP: '$13M' }
+};
+var empSizeData = {
+  'All': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '4,611', churnedARR: '$64.1M', winbackRCs: '4,016', winbackAP: '$791M' },
+  'Below 2,500': { activeRCs: '~2,800', activeARR: '$220M', churnedRCs: '2,268', churnedARR: '$14.4M', winbackRCs: '2,036', winbackAP: '$290M' },
+  '2,500–5K': { activeRCs: '~580', activeARR: '$95M', churnedRCs: '493', churnedARR: '$5.6M', winbackRCs: '450', winbackAP: '$98M' },
+  '5K–10K': { activeRCs: '~620', activeARR: '$110M', churnedRCs: '472', churnedARR: '$6.9M', winbackRCs: '421', winbackAP: '$115M' },
+  '10K–25K': { activeRCs: '~680', activeARR: '$145M', churnedRCs: '483', churnedARR: '$6.9M', winbackRCs: '394', winbackAP: '$108M' },
+  '25K–50K': { activeRCs: '~380', activeARR: '$100M', churnedRCs: '223', churnedARR: '$3.7M', winbackRCs: '150', winbackAP: '$55M' },
+  'Above 50K': { activeRCs: '~420', activeARR: '$230M', churnedRCs: '223', churnedARR: '$4.3M', winbackRCs: '174', winbackAP: '$68M' },
+  'Federal': { activeRCs: '~130', activeARR: '$55M', churnedRCs: '109', churnedARR: '$17.8M', winbackRCs: '93', winbackAP: '$32M' },
+  'SLED': { activeRCs: '~100', activeARR: '$37M', churnedRCs: '364', churnedARR: '$4.6M', winbackRCs: '300', winbackAP: '$25M' }
+};
+var statusData = {
+  'All': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '4,614', churnedARR: '$64.1M', winbackRCs: '4,016', winbackAP: '$791M' },
+  'Active': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '4,016', churnedARR: '$45.5M', winbackRCs: '4,016', winbackAP: '$791M' },
+  'Unknown': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '347', churnedARR: '$15.5M', winbackRCs: '—', winbackAP: '$89.8M' },
+  'Out of Business': { activeRCs: '5,711', activeARR: '$991.6M', churnedRCs: '266', churnedARR: '$2.5M', winbackRCs: '—', winbackAP: '$37.5M' }
+};
+
+var fy25Data = {
+  geo: {
+    'All': { arr: '$25.3M', exFed: '$9.6M ex-Federal', mult: '4.1x', multExFed: '1.5x' },
+    'AMS': { arr: '$20.3M', exFed: '$4.6M ex-Federal', mult: '6.8x', multExFed: '1.5x' },
+    'AMS-US': { arr: '$18.1M', exFed: '$3.8M ex-Federal', mult: '6.0x', multExFed: '1.3x' },
+    'EMEA': { arr: '$3.1M', exFed: '', mult: '2.1x', multExFed: '' },
+    'APJ': { arr: '$1.8M', exFed: '', mult: '1.1x', multExFed: '' }
+  },
+  arr: {
+    'All': { arr: '$25.3M', sub: '$9.6M ex-Federal' },
+    '$1M+': { arr: '$14.9M', sub: 'Single large Federal account' },
+    '$500K–$1M': { arr: '$0.3M', sub: '1 RC churned' },
+    '$250K–$500K': { arr: '$1.2M', sub: '4 RCs churned' },
+    '$100K–$250K': { arr: '$2.5M', sub: '17 RCs churned' },
+    '$50K–$100K': { arr: '$2.7M', sub: '39 RCs churned' },
+    '$25K–$50K': { arr: '$1.8M', sub: '51 RCs churned' },
+    '<$25K': { arr: '$1.9M', sub: '238 RCs churned' }
+  },
+  segment: {
+    'All': { arr: '$25.3M', sub: '$9.6M ex-Federal' },
+    'Enterprise': { arr: '$17.5M', sub: '192 RCs churned' },
+    'Commercial': { arr: '$2.8M', sub: '58 RCs churned' },
+    'Mid Market': { arr: '$1.5M', sub: '35 RCs churned' },
+    'US Public Sector': { arr: '$2.5M', sub: '45 RCs churned' },
+    'New Logo': { arr: '$0.7M', sub: '16 RCs churned' },
+    'SP/SI': { arr: '$0.3M', sub: '3 RCs churned' }
+  },
+  empSize: {
+    'All': { arr: '$25.3M', sub: '$9.6M ex-Federal' },
+    'Below 2,500': { arr: '$3.2M', sub: '~130 RCs churned' },
+    '2,500–5K': { arr: '$1.1M', sub: '~40 RCs churned' },
+    '5K–10K': { arr: '$1.4M', sub: '~35 RCs churned' },
+    '10K–25K': { arr: '$1.8M', sub: '~30 RCs churned' },
+    '25K–50K': { arr: '$0.9M', sub: '~20 RCs churned' },
+    'Above 50K': { arr: '$1.2M', sub: '~15 RCs churned' },
+    'Federal': { arr: '$15.7M', sub: 'Single large account drove spike' },
+    'SLED': { arr: '$0.8M', sub: '~30 RCs churned' }
+  },
+  status: {
+    'All': { arr: '$25.3M', sub: '$9.6M ex-Federal' },
+    'Active': { arr: '$22.1M', sub: 'Active businesses' },
+    'Unknown': { arr: '$2.1M', sub: 'Status unverified' },
+    'Out of Business': { arr: '$1.1M', sub: 'No longer operating' }
+  }
+};
+
+function updateAllKPIs() {
+  var geo = document.getElementById('filterGeo').value;
+  var arr = document.getElementById('filterARR').value;
+  var seg = document.getElementById('filterSegment').value;
+  var emp = document.getElementById('filterEmpSize').value;
+  // Find the most specific non-All filter (priority order)
+  var filterSource = null;
+  if (emp !== 'All') filterSource = empSizeData[emp];
+  else if (seg !== 'All') filterSource = segmentData[seg];
+  else if (arr !== 'All') filterSource = arrData[arr];
+
+  // Update Active RCs (card 1): use filter-specific data if available, else GEO
+  var gd = geoData[geo] || geoData['All'];
+  if (filterSource && filterSource.activeRCs) {
+    document.getElementById('kpiActiveRCs').textContent = filterSource.activeRCs;
+    document.querySelector('#kpiRow .kpi-card:nth-child(1) .kpi-sub').innerHTML = 'Generating <strong>' + filterSource.activeARR + '</strong> ARR';
+  } else {
+    document.getElementById('kpiActiveRCs').textContent = gd.activeRCs;
+    document.querySelector('#kpiRow .kpi-card:nth-child(1) .kpi-sub').innerHTML = 'Generating <strong>' + gd.arr + '</strong> ARR';
+  }
+
+  // Update FY25 Churned ARR (card 3)
+  var fy25Card = document.querySelector('#kpiRow .kpi-card:nth-child(3)');
+  var fy25Val = fy25Card.querySelector('.kpi-value');
+  var fy25Sub = fy25Card.querySelector('.kpi-sub');
+  var fy25src = null;
+  if (geo !== 'All' && fy25Data.geo[geo]) fy25src = fy25Data.geo[geo];
+  if (emp !== 'All' && fy25Data.empSize[emp]) fy25src = { arr: fy25Data.empSize[emp].arr, exFed: '', mult: '', multExFed: '', sub: fy25Data.empSize[emp].sub };
+  if (seg !== 'All' && fy25Data.segment[seg]) fy25src = { arr: fy25Data.segment[seg].arr, exFed: '', mult: '', multExFed: '', sub: fy25Data.segment[seg].sub };
+  if (arr !== 'All' && fy25Data.arr[arr]) fy25src = { arr: fy25Data.arr[arr].arr, exFed: '', mult: '', multExFed: '', sub: fy25Data.arr[arr].sub };
+
+  if (fy25src) {
+    fy25Val.textContent = fy25src.arr;
+    if (fy25src.exFed) {
+      fy25Sub.innerHTML = '<span class="kpi-trend-down">↑ ' + (fy25src.mult || '4.1x') + '</span> vs FY24 ($6.2M)<br><span style="font-weight:700; color:#101820;">' + fy25src.exFed + '</span> <span style="color:var(--blox-steel);">(↑ ' + (fy25src.multExFed || '1.5x') + ' vs FY24)</span>';
+    } else if (fy25src.sub) {
+      fy25Sub.innerHTML = '<span style="color:var(--blox-steel);">' + fy25src.sub + '</span>';
+    } else {
+      fy25Sub.innerHTML = '';
+    }
+  } else {
+    fy25Val.textContent = '$25.3M';
+    fy25Sub.innerHTML = '<span class="kpi-trend-down">↑ 4.1x</span> vs FY24 ($6.2M)<br><span style="font-weight:700; color:#101820;">$9.6M ex-Federal</span> <span style="color:var(--blox-steel);">(↑ 1.5x vs FY24)</span>';
+  }
+
+  // Update Churned RCs + Winback AP (cards 2 & 4)
+  if (!filterSource && geo !== 'All') {
+    filterSource = { churnedRCs: gd.churnedRCs, churnedARR: gd.churnedARR, winbackRCs: gd.winbackRCs || '—', winbackAP: gd.winbackAP || '—' };
+  }
+
+  if (filterSource) {
+    document.getElementById('kpiChurnedRCs').textContent = filterSource.churnedRCs;
+    document.querySelector('#kpiRow .kpi-card:nth-child(2) .kpi-sub').innerHTML = 'Total churned ARR: <strong>' + filterSource.churnedARR + '</strong>';
+    var wpVal = filterSource.winbackAP || '$791M';
+    var wpRCs = filterSource.winbackRCs || '4,016';
+    document.querySelector('#kpiRow .kpi-card:nth-child(4) .kpi-value').textContent = wpVal;
+    document.querySelector('#kpiRow .kpi-card:nth-child(4) .kpi-sub').innerHTML = wpRCs + ' active churned companies at <strong>6% AP</strong>';
+  } else {
+    // Reset to defaults
+    document.getElementById('kpiActiveRCs').textContent = '5,711';
+    document.querySelector('#kpiRow .kpi-card:nth-child(1) .kpi-sub').innerHTML = 'Generating <strong>$991.6M</strong> ARR';
+    document.getElementById('kpiChurnedRCs').textContent = '4,614';
+    document.querySelector('#kpiRow .kpi-card:nth-child(2) .kpi-sub').innerHTML = 'Total churned ARR: <strong>$64.1M</strong>';
+    document.querySelector('#kpiRow .kpi-card:nth-child(4) .kpi-value').textContent = '$791M';
+    document.querySelector('#kpiRow .kpi-card:nth-child(4) .kpi-sub').innerHTML = '4,016 active churned companies at <strong>6% AP</strong>';
+  }
+}
+
+document.getElementById('filterGeo').addEventListener('change', updateAllKPIs);
+document.getElementById('filterARR').addEventListener('change', function() {
+  highlightTableRow('tabARR', this.value, 0);
+  switchToTab('tabARR');
+  updateAllKPIs();
+});
+document.getElementById('filterSegment').addEventListener('change', function() {
+  highlightTableRow('tabSegment', this.value, 0);
+  switchToTab('tabSegment');
+  updateAllKPIs();
+});
+document.getElementById('filterEmpSize').addEventListener('change', function() {
+  highlightTableRow('tabEmpSize', this.value, 0);
+  switchToTab('tabEmpSize');
+  updateAllKPIs();
+});
+
+function highlightTableRow(tabId, value, colIdx) {
+  var panel = document.getElementById(tabId);
+  var rows = panel.querySelectorAll('tbody tr');
+  rows.forEach(function(r) {
+    r.style.background = '';
+    if (value !== 'All') {
+      var cell = r.querySelectorAll('td')[colIdx];
+      if (cell && cell.textContent.trim() === value) {
+        r.style.background = 'rgba(0,189,77,0.1)';
+      }
+    }
+  });
+}
+
+function switchToTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  var tabMap = { 'tabGeo': 0, 'tabARR': 1, 'tabSegment': 2, 'tabEmpSize': 3, 'tabTenure': 4, 'tabWinback': 5, 'tabOwnerRegion': 6 };
+  var idx = tabMap[tabId];
+  if (idx !== undefined) {
+    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  }
+  document.getElementById(tabId).classList.add('active');
+}
+
+function resetFilters() {
+  document.getElementById('filterGeo').value = 'All';
+  document.getElementById('filterARR').value = 'All';
+  document.getElementById('filterSegment').value = 'All';
+  document.getElementById('filterEmpSize').value = 'All';
+  updateAllKPIs();
+  ['tabARR','tabSegment','tabEmpSize','tabWinback'].forEach(function(id) { highlightTableRow(id, 'All', 0); });
+}
+
+// ===== Export PDF =====
+window.GleanBridge.postMessage({
+  actionId: 'export-pdf',
+  type: 'glean-add-menu',
+  metadata: { label: 'Export as PDF', icon: 'export' }
+});
+window.GleanBridge.onMessage('action', function(data) {
+  if (data.actionId === 'export-pdf') {
+    prepareChartsForPrint();
+    setTimeout(function() { window.print(); }, 300);
+  }
+});
+
+function prepareChartsForPrint() {
+  document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
+    var chart = echarts.getInstanceByDom(el);
+    if (!chart) return;
+    var img = new Image();
+    img.src = chart.getDataURL({ type: 'png', pixelRatio: 2 });
+    img.className = 'print-chart-img';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;z-index:10;';
+    el.dataset.prevPosition = el.style.position;
+    el.style.position = 'relative';
+    el.appendChild(img);
+  });
+}
+
+function restoreChartsAfterPrint() {
+  document.querySelectorAll('[_echarts_instance_]').forEach(function(el) {
+    var img = el.querySelector('.print-chart-img');
+    if (!img) return;
+    img.remove();
+    el.style.position = el.dataset.prevPosition || '';
+    delete el.dataset.prevPosition;
+  });
+}
+
+window.addEventListener('beforeprint', prepareChartsForPrint);
+window.addEventListener('afterprint', restoreChartsAfterPrint);
+</script>
+
+<script>
+// ===== Global GEO Filter Engine =====
+(function() {
+  var geoSelect = document.getElementById('filterGeo');
+  var GREEN = '#00BD4D', TEAL = '#009BA4', ORANGE = '#E67E22', STEEL = '#6E7C87', BLACK = '#101820', YELLOW = '#FFD100';
+  var cFont = 'Lato, -apple-system, sans-serif';
+
+  function getChart(id) {
+    var el = document.getElementById(id);
+    return el ? echarts.getInstanceByDom(el) : null;
+  }
+
+  // ---- Region Segment Data ----
+  var segNames = ['SP/SI','New Logo','US Public Sector','Mid Market','Commercial','Enterprise'];
+  var segAMS =  [3, 136, 452, 482, 271, 410];
+  var segEMEA = [54, 87, 0, 1, 390, 489];
+  var segAPJ =  [0, 0, 0, 0, 0, 1249];
+
+  function updateRegionSeg(geo) {
+    var chart = getChart('chartRegionSeg');
+    if (!chart) return;
+    if (geo === 'All') {
+      chart.setOption({
+        legend: { data: ['AMS','EMEA','APJ'], show: true },
+        yAxis: { data: segNames },
+        series: [
+          { name: 'AMS', type: 'bar', stack: 'seg', data: segAMS, barWidth: '55%', itemStyle: { color: GREEN }, label: { show: false } },
+          { name: 'EMEA', type: 'bar', stack: 'seg', data: segEMEA, itemStyle: { color: TEAL }, label: { show: false } },
+          { name: 'APJ', type: 'bar', stack: 'seg', data: segAPJ, itemStyle: { color: ORANGE, borderRadius: [0,4,4,0] },
+            label: { show: true, position: 'right', fontFamily: cFont, fontSize: 11, fontWeight: 700, color: BLACK,
+              formatter: function(p) { return (segAMS[p.dataIndex]+segEMEA[p.dataIndex]+segAPJ[p.dataIndex]).toLocaleString(); } } }
+        ]
+      }, { replaceMerge: ['series'] });
+    } else {
+      var geoKey = (geo === 'AMS-US') ? 'ams' : geo.toLowerCase();
+      var colorMap = { ams: GREEN, emea: TEAL, apj: ORANGE };
+      var dataMap = { ams: segAMS, emea: segEMEA, apj: segAPJ };
+      var d = dataMap[geoKey] || segAMS;
+      var c = colorMap[geoKey] || GREEN;
+      var pairs = [];
+      for (var i = 0; i < segNames.length; i++) { if (d[i] > 0) pairs.push({ n: segNames[i], v: d[i] }); }
+      pairs.sort(function(a,b) { return a.v - b.v; });
+      chart.setOption({
+        legend: { show: false },
+        yAxis: { data: pairs.map(function(p) { return p.n; }) },
+        series: [{
+          name: geo, type: 'bar', stack: 'seg', data: pairs.map(function(p) { return p.v; }),
+          barWidth: '55%', itemStyle: { color: c, borderRadius: [0,4,4,0] },
+          label: { show: true, position: 'right', fontFamily: cFont, fontSize: 11, fontWeight: 700, color: BLACK,
+            formatter: function(p) { return p.value.toLocaleString(); } }
+        }]
+      }, { replaceMerge: ['series'] });
+    }
+    chart.resize();
+  }
+
+  // ---- Owner Region Data ----
+  var ownerAll = [
+    {n:'EMEA COM',v:285,g:'EMEA'},{n:'JAPAN',v:275,g:'APJ'},{n:'MID MARKET',v:201,g:'AMS'},
+    {n:'KOREA',v:172,g:'APJ'},{n:'GC',v:144,g:'APJ'},{n:'AMS ENT EAST',v:134,g:'AMS'},
+    {n:'METAF',v:111,g:'EMEA'},{n:'FEDERAL',v:109,g:'AMS'},{n:'ANZ',v:101,g:'APJ'},
+    {n:'AMS COM WEST',v:96,g:'AMS'},{n:'AMS COM EAST',v:94,g:'AMS'},
+    {n:'EMEA ENT',v:93,g:'EMEA'},{n:'SLED EAST',v:89,g:'AMS'},
+    {n:'US PUB SEC CIV',v:88,g:'AMS'},{n:'SLED WEST',v:88,g:'AMS'},
+    {n:'ASEAN',v:72,g:'APJ'},{n:'AMS ENT WEST',v:69,g:'AMS'},
+    {n:'US PUB SEC DOD',v:65,g:'AMS'},{n:'AMS COM CENTRAL',v:45,g:'AMS'},
+    {n:'AMS CHANNEL',v:26,g:'AMS'},{n:'EMEA SP SI',v:17,g:'EMEA'}
+  ];
+
+  function updateOwnerRegion(geo) {
+    var chart = getChart('chartOwnerRegion');
+    if (!chart) return;
+    var filtered;
+    if (geo === 'All') { filtered = ownerAll.slice(); }
+    else {
+      var gk = (geo === 'AMS-US') ? 'AMS' : geo;
+      filtered = ownerAll.filter(function(r) { return r.g === gk; });
+    }
+    filtered.sort(function(a,b) { return a.v - b.v; });
+    var gcm = { 'AMS': GREEN, 'EMEA': TEAL, 'APJ': ORANGE };
+    chart.setOption({
+      yAxis: { data: filtered.map(function(r) { return r.n; }) },
+      series: [{
+        type: 'bar', data: filtered.map(function(r) {
+          return { value: r.v, itemStyle: { color: gcm[r.g] || STEEL, borderRadius: [0,4,4,0] } };
+        }),
+        barWidth: '55%',
+        label: { show: true, position: 'right', fontFamily: cFont, fontSize: 10, fontWeight: 700, color: BLACK, formatter: '{c}' }
+      }]
+    });
+    chart.resize();
+  }
+
+  // ---- GEO ARR Data ----
+  var geoYears = ['FY19','FY20','FY21','FY22','FY23','FY24','FY25','H1\'26'];
+  var amsExFed = [1.3,1.8,4.5,1.4,3.2,3.0,4.6,5.5];
+  var amsFed =   [0,0,0,0,0,0,15.7,1.2];
+  var emeaARR =  [0.7,0.8,1.4,0.8,1.4,1.5,3.1,3.5];
+  var apjARR =   [0.9,0.7,0.9,0.7,0.8,1.6,1.8,1.0];
+
+  function updateGeoARR(geo) {
+    var chart = getChart('chartGeoARR');
+    if (!chart) return;
+    if (geo === 'All') {
+      chart.setOption({
+        legend: { data: ['AMS (ex-Fed)','Federal','EMEA','APJ'], show: true },
+        series: [
+          { name: 'AMS (ex-Fed)', type: 'bar', stack: 'geo', data: amsExFed, barWidth: '45%', itemStyle: { color: GREEN, borderRadius: [0,0,0,0] } },
+          { name: 'Federal', type: 'bar', stack: 'geo', data: amsFed, itemStyle: { color: YELLOW } },
+          { name: 'EMEA', type: 'bar', stack: 'geo', data: emeaARR, itemStyle: { color: TEAL } },
+          { name: 'APJ', type: 'bar', stack: 'geo', data: apjARR, itemStyle: { color: STEEL, borderRadius: [4,4,0,0] } }
+        ]
+      }, { replaceMerge: ['series'] });
+    } else if (geo === 'AMS' || geo === 'AMS-US') {
+      chart.setOption({
+        legend: { data: ['AMS (ex-Fed)','Federal'], show: true },
+        series: [
+          { name: 'AMS (ex-Fed)', type: 'bar', stack: 'geo', data: amsExFed, barWidth: '45%', itemStyle: { color: GREEN } },
+          { name: 'Federal', type: 'bar', stack: 'geo', data: amsFed, itemStyle: { color: YELLOW, borderRadius: [4,4,0,0] } }
+        ]
+      }, { replaceMerge: ['series'] });
+    } else if (geo === 'EMEA') {
+      chart.setOption({
+        legend: { show: false },
+        series: [{ name: 'EMEA', type: 'bar', stack: 'geo', data: emeaARR, barWidth: '45%', itemStyle: { color: TEAL, borderRadius: [4,4,0,0] } }]
+      }, { replaceMerge: ['series'] });
+    } else if (geo === 'APJ') {
+      chart.setOption({
+        legend: { show: false },
+        series: [{ name: 'APJ', type: 'bar', stack: 'geo', data: apjARR, barWidth: '45%', itemStyle: { color: STEEL, borderRadius: [4,4,0,0] } }]
+      }, { replaceMerge: ['series'] });
+    }
+    chart.resize();
+  }
+
+  // ---- "Global Data" overlays for non-filterable charts ----
+  var globalCharts = ['chartNetLogo','chartChurnAccel','chartChurnRate','chartLossReasons'];
+
+  function toggleOverlays(geo) {
+    globalCharts.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var ov = el.querySelector('.geo-overlay-badge');
+      if (geo === 'All') {
+        if (ov) ov.remove();
+      } else {
+        if (!ov) {
+          ov = document.createElement('div');
+          ov.className = 'geo-overlay-badge';
+          ov.style.cssText = 'position:absolute;top:8px;right:12px;background:rgba(16,24,32,0.07);color:#6E7C87;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;z-index:5;pointer-events:none;';
+          el.style.position = 'relative';
+          el.appendChild(ov);
+        }
+        ov.textContent = 'Showing: All GEOs';
+      }
+    });
+  }
+
+  // ---- GEO detail table highlight ----
+  function filterGeoTable(geo) {
+    var tab = document.getElementById('tabGeo');
+    if (!tab) return;
+    tab.querySelectorAll('tbody tr').forEach(function(r) {
+      var c = r.querySelectorAll('td')[0];
+      if (!c) return;
+      r.style.background = '';
+      if (geo !== 'All' && !r.classList.contains('total-row')) {
+        var t = c.textContent.trim();
+        if ((geo === 'AMS-US' && t === 'AMS') || t === geo) {
+          r.style.background = 'rgba(0,189,77,0.1)';
+        }
+      }
+    });
+  }
+
+  // ---- Products Held at Last Active (GEO-filterable) ----
+  var productsAllData = {
+    products: ['Other Security, Core DDI','DDI+ NI, DDI+ MS, Core DDI','DDI+ NI, Core DDI','B1DDI','DDI+ MS','Other Sec + DDI+ TR + Core DDI','DDI+ TR, Core DDI','Core DDI + Other Security','Other Sec, Core DDI','TD','DDI+ MS + Core DDI','NetMRI','Core DDI (only)'],
+    counts: [45, 32, 33, 31, 31, 37, 43, 45, 58, 66, 67, 79, 1328]
+  };
+  var productsGeo = {
+    'AMS': { products: ['DDI+ NI, Core DDI','B1DDI','DDI+ MS','DDI+ TR, Core DDI','Core DDI + Other Security','Other Sec, Core DDI','TD','DDI+ MS + Core DDI','NetMRI','Core DDI (only)'], counts: [18, 15, 16, 22, 24, 30, 35, 38, 42, 680] },
+    'AMS-US': { products: ['DDI+ NI, Core DDI','B1DDI','DDI+ MS','DDI+ TR, Core DDI','Core DDI + Other Security','Other Sec, Core DDI','TD','DDI+ MS + Core DDI','NetMRI','Core DDI (only)'], counts: [14, 12, 13, 18, 20, 25, 28, 30, 34, 540] },
+    'EMEA': { products: ['DDI+ NI, Core DDI','DDI+ MS','Core DDI + Other Security','Other Sec, Core DDI','TD','DDI+ MS + Core DDI','NetMRI','Core DDI (only)'], counts: [9, 8, 12, 16, 18, 17, 22, 380] },
+    'APJ': { products: ['DDI+ NI, Core DDI','DDI+ MS','DDI+ TR, Core DDI','Other Sec, Core DDI','TD','DDI+ MS + Core DDI','NetMRI','Core DDI (only)'], counts: [6, 7, 9, 12, 13, 12, 15, 268] }
+  };
+
+  function updateProductsHeld(geo) {
+    var chart = getChart('chartProductsHeld');
+    if (!chart) return;
+    var d = (geo === 'All') ? productsAllData : (productsGeo[geo] || productsAllData);
+    chart.setOption({
+      yAxis: { data: d.products },
+      series: [{ data: d.counts.map(function(v) {
+        var c = v >= 500 ? '#d32f2f' : v >= 50 ? '#009BA4' : '#6E7C87';
+        return { value: v, itemStyle: { color: c, borderRadius: [0,3,3,0] } };
+      }) }]
+    });
+    chart.resize();
+  }
+
+  // ---- Product Adoption Risk (GEO-filterable) ----
+  function updateProductAdoption(geo) {
+    if (typeof drawProductsChart === 'function') drawProductsChart(geo);
+  }
+
+  // ---- Master handler ----
+  function applyGlobalGeoFilter() {
+    var geo = geoSelect.value;
+    updateRegionSeg(geo);
+    updateOwnerRegion(geo);
+    updateGeoARR(geo);
+    updateProductsHeld(geo);
+    updateProductAdoption(geo);
+    toggleOverlays(geo);
+    filterGeoTable(geo);
+  }
+
+  geoSelect.addEventListener('change', applyGlobalGeoFilter);
+
+  // Wrap existing reset
+  var _prevReset = window.resetFilters;
+  window.resetFilters = function() {
+    if (_prevReset) _prevReset();
+    setTimeout(applyGlobalGeoFilter, 50);
+  };
+})();
+</script>
+</body>
+</html>
